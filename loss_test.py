@@ -7,6 +7,10 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+# ハイパーパラメータの設定
+epoch = 10
+arcface_s = 30.0
+arcface_m = 0.5
 
 class SimpleCNN(nn.Module):
     def __init__(self):
@@ -22,13 +26,14 @@ class SimpleCNN(nn.Module):
         x = self.conv2(x)
         x = nn.functional.relu(x)
         x = nn.functional.max_pool2d(x, 2)
-        x = nn.functional.dropout(x, 0.25)
+        x = nn.functional.dropout(x, 0.25, training=self.training)
         x = x.view(-1, 64 * 12 * 12)
         x = self.fc1(x)
         x = nn.functional.relu(x)
-        x = nn.functional.dropout(x, 0.5)
+        x = nn.functional.dropout(x, 0.5, training=self.training)
         x = self.fc2(x)
         return x
+
 class AdaCosLoss(nn.Module):
     def __init__(self, num_classes=10):
         super(AdaCosLoss, self).__init__()
@@ -40,7 +45,7 @@ class AdaCosLoss(nn.Module):
         return F.cross_entropy(self.s * cos_theta, labels)
 
 class ArcFaceLoss(nn.Module):
-    def __init__(self, s=30.0, m=0.5):
+    def __init__(self, s=arcface_s, m=arcface_m):
         super(ArcFaceLoss, self).__init__()
         self.s = s
         self.m = m
@@ -49,6 +54,7 @@ class ArcFaceLoss(nn.Module):
         cos_theta = F.cosine_similarity(logits, F.one_hot(labels, num_classes=10).float(), dim=-1)
         phi = cos_theta - self.m
         return F.cross_entropy(self.s * phi, labels)
+
 def train_and_evaluate(model, loss_fn, train_loader, test_loader, epochs=10):
     optimizer = optim.Adam(model.parameters())
     for epoch in range(epochs):
@@ -59,27 +65,31 @@ def train_and_evaluate(model, loss_fn, train_loader, test_loader, epochs=10):
             loss = loss_fn(output, target)
             loss.backward()
             optimizer.step()
+
         model.eval()
-        test_loss = 0
+        test_loss = 0  # テストロスの初期化
         correct = 0
         with torch.no_grad():
             for data, target in test_loader:
                 output = model(data)
-                test_loss += loss_fn(output, target).item()
+                test_loss += loss_fn(output, target).item()  # テストロスを集計
                 pred = output.argmax(dim=1, keepdim=True)
                 correct += pred.eq(target.view_as(pred)).sum().item()
-        print(f"Epoch {epoch}: Test accuracy: {100. * correct / len(test_loader.dataset)}%")
+
+        test_loss /= len(test_loader.dataset)  # テストロスの平均を計算
+
+        print(f"Epoch {epoch + 1}: Test loss: {test_loss}, Test accuracy: {100. * correct / len(test_loader.dataset)}%")
 
 # データローダーの設定
-train_loader = DataLoader(datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor()), batch_size=64, shuffle=True)
-test_loader = DataLoader(datasets.MNIST('./data', train=False, transform=transforms.ToTensor()), batch_size=64)
+train_loader = DataLoader(datasets.MNIST('assets/MNIST', train=True, download=False, transform=transforms.ToTensor()), batch_size=64, shuffle=True)
+test_loader = DataLoader(datasets.MNIST('assets/MNIST', train=False, download=False, transform=transforms.ToTensor()), batch_size=64)
 
 # AdaCosでの訓練と評価
 print("Training with AdaCos")
 model = SimpleCNN()
-train_and_evaluate(model, AdaCosLoss(), train_loader, test_loader)
+train_and_evaluate(model, AdaCosLoss(), train_loader, test_loader, epochs=epoch)
 
 # ArcFaceでの訓練と評価
 print("Training with ArcFace")
 model = SimpleCNN()
-train_and_evaluate(model, ArcFaceLoss(), train_loader, test_loader)
+train_and_evaluate(model, ArcFaceLoss(s=arcface_s, m=arcface_m), train_loader, test_loader, epochs=epoch)
