@@ -45,3 +45,11 @@ ArcFaceよりAdaCosが優れた値を示すのは、2万epoch以降です。
 \[
 \tilde{s}_f = \sqrt{2} \cdot \log(C - 1)
 \]
+クラス数が16だとすると
+\[
+\sqrt{2} \log(16 - 1)
+\]
+\[
+約3.829
+\]
+

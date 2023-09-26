@@ -5,3 +5,4 @@ lib64
 share
 .vscode
 pyenv.cfg
+assets/face_data
