@@ -234,3 +234,22 @@ cross_entropy_loss = nn.CrossEntropyLoss()
 train(model, cross_entropy_loss, train_loader, test_loader, epochs=epoch)
 # CrossEntropyでの評価
 evaluate_with_cross_entropy(model, train_loader, test_loader, cross_entropy_loss)
+
+"""
+Training with ArcFace
+arcface: Training accuracy: 98.60643921191735%
+arcface: Test accuracy: 85.22072936660268%
+Training with AdaCos
+adacos: Training accuracy: 99.42335415665545%
+adacos: Test accuracy: 90.01919385796545%
+Training with CrossEntropy
+Training accuracy: 94.56991830850552%
+Test loss: 0.022136613415579192, Test accuracy: 89.44337811900192%
+
+| Loss Function  | Training Accuracy (%) | Test Accuracy (%) | Test Loss               |
+|----------------|-----------------------|-------------------|-------------------------|
+| ArcFace        | 98.61                 | 85.22             | N/A                     |
+| AdaCos         | 99.42                 | 90.02             | N/A                     |
+| CrossEntropy   | 94.57                 | 89.44             | 0.022136613415579192    |
+
+"""

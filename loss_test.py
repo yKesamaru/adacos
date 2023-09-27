@@ -223,4 +223,12 @@ adacos: Test accuracy: 98.09%
 Training with CrossEntropy
 Training accuracy: 98.31833333333333%
 Test loss: 0.0004521963403734844, Test accuracy: 98.17%
+
+| Loss Function  | Training Accuracy (%) | Test Accuracy (%) | Test Loss               |
+|----------------|-----------------------|-------------------|-------------------------|
+| ArcFace        | 99.90                 | 97.36             | N/A                     |
+| Simple_ArcFace | 98.72                 | 95.78             | N/A                     |
+| AdaCos         | 99.95                 | 98.09             | N/A                     |
+| CrossEntropy   | 98.32                 | 98.17             | 0.0004521963403734844   |
+
 """
