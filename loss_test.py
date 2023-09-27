@@ -204,10 +204,11 @@ evaluate_with_margin('adacos', model, train_loader, test_loader)
 
 # CrossEntropyでの訓練
 print("Training with CrossEntropy")
-model = SimpleCNN()  # モデルのインスタンスを作成
-train(model, criterion, train_loader, test_loader, epochs=epoch)
+model = SimpleCNN()
+cross_entropy_loss = nn.CrossEntropyLoss()
+train(model, cross_entropy_loss, train_loader, test_loader, epochs=epoch)
 # CrossEntropyでの評価
-evaluate_with_cross_entropy(model, train_loader, test_loader, nn.CrossEntropyLoss())
+evaluate_with_cross_entropy(model, train_loader, test_loader, cross_entropy_loss)
 
 """
 Training with ArcFace

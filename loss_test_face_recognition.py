@@ -1,22 +1,25 @@
 import math
 
 import matplotlib.pyplot as plt
+import numpy as np
 import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from pytorch_metric_learning import losses, regularizers, samplers
+from sklearn.neighbors import KNeighborsClassifier
+from torch import nn
 from torch.utils.data import DataLoader, Subset, random_split
 from torchvision import datasets, transforms
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
 
 # ハイパーパラメータの設定
-epoch = 30
+epoch = 10
 num_classes = 16
 arcface_s = 64.0
-arcface_m = 30.0
+arcface_m = 28.6
 batch_size = 16
 lr = 0.01
 resolution = 224
@@ -136,13 +139,6 @@ class AdaCosLoss(nn.Module):
 #     plt.title(f'Label: {labels[i]}')
 # plt.show()
 
-# # CrossEntropyでの訓練と評価
-# print("Training with CrossEntropy")
-# model = EfficientNetV2()  # モデルのインスタンスを作成
-# criterion = nn.CrossEntropyLoss()  # CrossEntropy損失関数を設定
-# train(model, criterion, train_loader, test_loader, epochs=epoch)  # 訓練と評価を実行
-
-
 def evaluate_with_cross_entropy(model, train_loader, test_loader, loss_fn):
     model.eval()  # 評価モード
     model = model.to('cuda')
@@ -234,7 +230,7 @@ evaluate_with_margin('adacos', model, train_loader, test_loader)
 # CrossEntropyでの訓練
 print("Training with CrossEntropy")
 model = EfficientNet()
-cross_entropy_loss = nn.CrossEntropyLoss()  # CrossEntropy損失関数を設定
+cross_entropy_loss = nn.CrossEntropyLoss()
 train(model, cross_entropy_loss, train_loader, test_loader, epochs=epoch)
 # CrossEntropyでの評価
-evaluate_with_cross_entropy(model, train_loader, test_loader, criterion)
+evaluate_with_cross_entropy(model, train_loader, test_loader, cross_entropy_loss)
