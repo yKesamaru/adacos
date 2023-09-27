@@ -29,8 +29,8 @@ embedding_size = 512
 class EfficientNet(nn.Module):
     def __init__(self):
         super(EfficientNet, self).__init__()
-        # self.model = timm.create_model("efficientnet_b0", pretrained=True)
-        self.model = timm.create_model("efficientnetv2_rw_s", pretrained=True)
+        # self.model = timm.create_model("efficientnet_b0", pretrained=True)  # EfficientNet
+        self.model = timm.create_model("efficientnetv2_rw_s", pretrained=True)  # EfficientNetV2
         num_features = self.model.classifier.in_features  # `_fc`属性を使用する
         # modelの最終層にembedding_size次元のembedder層を追加
         self.model.classifier = nn.Linear(num_features, embedding_size)
@@ -42,7 +42,7 @@ class EfficientNet(nn.Module):
 def train(model, loss_fn, train_loader, test_loader, epochs=epoch):
     model = model.to('cuda')  # モデルをGPUに移動
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    for epoch in tqdm(range(epochs), desc="Epochs"):  # 追加; tqdmでエポックの進捗を表示
+    for epoch in tqdm(range(epochs), desc="Epochs"):
         model.train()
         correct_train = 0  # 追加; 正解数を初期化
         for batch_idx, (data, target) in enumerate(train_loader):
